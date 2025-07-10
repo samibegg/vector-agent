@@ -2,7 +2,6 @@
 import Script from 'next/script';
 import Head from 'next/head';
 import '../styles/globals.css';
-import 'leaflet/dist/leaflet.css'; // Add this line
 
 import { SessionProvider } from 'next-auth/react'; // NextAuth session management
 import { AuthModalProvider } from '@/context/AuthModalContext'; // Context for modal state
