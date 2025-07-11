@@ -1,6 +1,7 @@
 // pages/researcher.js
 import { useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { useSession, signIn } from 'next-auth/react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -9,21 +10,42 @@ const pollInterval = 5000;   // 5 s between polls
 const maxTries     = 90;     // 90 × 5 s = 7.5 min
 
 export default function Researcher() {
-  const [prompt,        setPrompt]        = useState('');
-  const [results,       setResults]       = useState([]);
-  const [loading,       setLoading]       = useState(false);
-  const [globalErr,     setGlobalErr]     = useState('');
-  const [pollStatus,    setPollStatus]    = useState('');   // NEW
+  const { data: session, status } = useSession();
+  const [prompt, setPrompt] = useState('');
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [globalErr, setGlobalErr] = useState('');
+  const [pollStatus, setPollStatus] = useState('');
   const sessionRef = useRef(null);
 
-  /* ------------------------------------------- */
-  /*  one‑time sessionId for thread continuity   */
-  /* ------------------------------------------- */
   useEffect(() => {
     let sid = localStorage.getItem('sessionId');
-    if (!sid) { sid = uuidv4(); localStorage.setItem('sessionId', sid); }
+    if (!sid) {
+      sid = uuidv4();
+      localStorage.setItem('sessionId', sid);
+    }
     sessionRef.current = sid;
   }, []);
+
+  // Redirect to home if not logged in
+  if (status === 'loading') {
+    return (
+      <div className="bg-gray-100 min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow flex items-center justify-center text-center">
+          <p className="text-gray-600 text-lg">Checking authentication…</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!session) {
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    }
+    return null;
+  }
 
   /* ------------ submit prompt ------------- */
   async function submitPrompt() {

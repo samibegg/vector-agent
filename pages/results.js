@@ -4,17 +4,28 @@ import { Fragment } from 'react';
 import connectToDatabase from '../lib/mongodb';   // your cached helper
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { getSession } from 'next-auth/react';
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/', 
+        permanent: false,
+      },
+    };
+  }
+
   const { db } = await connectToDatabase();
   const data = await db
     .collection('research_contacts')
     .find({})
-    .limit(200)            // pull the most recent 200; adjust as you wish
+    .limit(200)
     .sort({ _id: -1 })
     .toArray();
 
-  // Next.js can’t serialize ObjectId; convert to string
   const contacts = data.map(doc => ({
     ...doc,
     _id: doc._id.toString(),

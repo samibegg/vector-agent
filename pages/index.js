@@ -1,66 +1,73 @@
-//pages/index.js
-'use client';
-
+// pages/index.js
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
-import { useEffect, useState } from 'react';
-
-// You can also import this from a separate file
-const heroTexts = [
-  ["Intelligence in Every Layer", "Forging AI That Drives Results"],
-  ["Strategic by Design", "AI and Data Aligned to Your Goals"]
+const phrases = [
+  'Intelligent Uploads',
+  'Research-Driven AI',
+  'Secure Cloud Integration',
+  'Automated Insight Generation',
 ];
 
-export default function HomePage() {
-
+export default function Home() {
   const [index, setIndex] = useState(0);
-  const [fade, setFade] = useState(true);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setFade(false); // Start fade out
-
-      setTimeout(() => {
-        setIndex((prev) => (prev + 1) % heroTexts.length);
-        setFade(true); // Fade back in
-      }, 500); // Wait for fade-out before changing
-    }, 3100);
-
+      setIndex((prev) => (prev + 1) % phrases.length);
+    }, 4000); // slowed transition for polish
     return () => clearInterval(interval);
   }, []);
 
-  const [line1, line2] = heroTexts[index];
-
-
   return (
-    <div className="bg-gray-100 min-h-screen flex flex-col">
+    <div className="bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen flex flex-col text-gray-800">
       <Header />
-
-      <main className="flex-grow flex flex-col justify-center items-center px-6 py-16">
-        {/* Hero Section */}
-        <section className="text-center max-w-3xl">
-          <h1
-            className={`text-5xl font-extrabold text-gray-900 mb-6 transition-opacity duration-500 ${fade ? 'opacity-100' : 'opacity-0'}`}
-          >
-            {line1} <br /> {line2}
+      <main className="flex-grow flex flex-col items-center justify-center px-6 py-24">
+        {/* Hero */}
+        <div className="text-center max-w-3xl">
+          <h1 className="text-5xl font-extrabold tracking-tight leading-tight mb-4">
+            Welcome to <span className="text-blue-700">Vector Agent</span>
           </h1>
-          <p className="text-lg text-gray-600 mb-8">
-            We specialize in cloud migration, big data engineering, cutting-edge app development, and AI strategy — guiding enterprises across industries through modern technological transformation.
+          <p className="text-xl md:text-2xl h-10 relative">
+            <span
+              key={phrases[index]}
+              className="absolute inset-0 transition-opacity duration-700 ease-in-out opacity-100 animate-fade"
+            >
+              {phrases[index]}
+            </span>
           </p>
-          <div className="flex flex-wrap justify-center gap-6">
-            <Link href="/knowledge-base" className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-md text-lg transition">
-              Access Knowledge Base
-            </Link>
-            <Link href="/ai/solutions" className="bg-red-500 hover:bg-red-700 text-white font-medium py-3 px-6 rounded-md text-lg transition">
-              Unlock Your AI Advantage
-            </Link>
-          </div>
-        </section>
+        </div>
+
+        {/* Actions */}
+        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl">
+          <Link
+            href="/upload"
+            className="group flex flex-col items-center justify-center bg-white border border-blue-200 hover:border-blue-400 shadow-md hover:shadow-xl transition-all duration-300 rounded-2xl px-8 py-10 text-center text-2xl font-semibold text-blue-700 hover:animate-pulse"
+          >
+            <div className="text-5xl mb-4">📤</div>
+            Upload Files
+          </Link>
+
+          <Link
+            href="/researcher"
+            className="group flex flex-col items-center justify-center bg-white border border-teal-200 hover:border-teal-400 shadow-md hover:shadow-xl transition-all duration-300 rounded-2xl px-8 py-10 text-center text-2xl font-semibold text-teal-700 hover:animate-pulse"
+          >
+            <div className="text-5xl mb-4">🧠</div>
+            AI Researcher
+          </Link>
+
+          <Link
+            href="/results"
+            className="group flex flex-col items-center justify-center bg-white border border-emerald-200 hover:border-emerald-400 shadow-md hover:shadow-xl transition-all duration-300 rounded-2xl px-8 py-10 text-center text-2xl font-semibold text-emerald-700 hover:animate-pulse"
+          >
+            <div className="text-5xl mb-4">📊</div>
+            Research Results
+          </Link>
+        </div>
 
       </main>
-
       <Footer />
     </div>
   );
