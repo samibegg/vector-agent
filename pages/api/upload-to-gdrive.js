@@ -4,11 +4,10 @@ import formidable from 'formidable';
 import fs from 'fs';
 import { getServerSession } from 'next-auth/next';
 import authOptions from './auth/[...nextauth]';
+import connectToDatabase from '@/lib/mongodb';
 
 export const config = {
-  api: {
-    bodyParser: false,
-  },
+  api: { bodyParser: false }
 };
 
 function parseForm(req) {
@@ -17,18 +16,12 @@ function parseForm(req) {
       multiples: false,
       keepExtensions: true,
       allowEmptyFiles: false,
-      uploadDir: '/tmp', // required for Vercel
+      uploadDir: '/tmp',
     });
 
     form.parse(req, (err, fields, files) => {
-      if (err) {
-        console.error('Form parse error:', err);
-        reject(err);
-      } else {
-        console.log('Fields:', fields);
-        console.log('Files:', files);
-        resolve({ fields, files });
-      }
+      if (err) reject(err);
+      else resolve({ fields, files });
     });
   });
 }
@@ -43,18 +36,11 @@ export default async function handler(req, res) {
     const { files } = await parseForm(req);
     const uploadedFile = Array.isArray(files.file) ? files.file[0] : files.file;
 
-    if (!uploadedFile) {
-      console.error('❌ No file received');
+    if (!uploadedFile || !uploadedFile.filepath) {
       return res.status(400).json({ error: 'No file received' });
     }
 
-    const filePath = uploadedFile.filepath || uploadedFile.path;
-    if (!filePath || !fs.existsSync(filePath)) {
-      console.error('❌ Filepath missing or file does not exist:', filePath);
-      return res.status(400).json({ error: 'Invalid file path' });
-    }
-
-    // OAuth client
+    // Setup Google Drive API
     const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET
@@ -62,25 +48,39 @@ export default async function handler(req, res) {
     oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_DRIVE_REFRESH_TOKEN });
     const drive = google.drive({ version: 'v3', auth: oauth2Client });
 
+    // Upload to Drive
     const fileMetadata = {
-      name: uploadedFile.originalFilename || uploadedFile.newFilename || 'unnamed',
+      name: uploadedFile.originalFilename || uploadedFile.newFilename,
       parents: [process.env.GOOGLE_DRIVE_FOLDER_ID],
     };
-
     const media = {
       mimeType: uploadedFile.mimetype || 'application/octet-stream',
-      body: fs.createReadStream(filePath),
+      body: fs.createReadStream(uploadedFile.filepath),
     };
 
-    const response = await drive.files.create({
+    const upload = await drive.files.create({
       resource: fileMetadata,
       media,
-      fields: 'id, name, webViewLink, size',
+      fields: 'id, name, webViewLink, size, mimeType',
     });
 
-    return res.status(200).json(response.data);
+    const fileData = upload.data;
+
+    // Save metadata to MongoDB
+    const { db } = await connectToDatabase();
+    await db.collection('uploads').insertOne({
+      driveFileId: fileData.id,
+      name: fileData.name,
+      size: Number(fileData.size) || 0,
+      mimeType: fileData.mimeType,
+      webViewLink: fileData.webViewLink,
+      uploadedBy: session.user.email,
+      uploadedAt: new Date(),
+    });
+
+    return res.status(200).json(fileData);
   } catch (err) {
-    console.error('Upload to Drive failed:', err);
+    console.error('Upload failed:', err);
     return res.status(500).json({ error: err.message || 'Upload failed' });
   }
 }
