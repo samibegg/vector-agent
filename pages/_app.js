@@ -19,7 +19,8 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) { // Destruc
         {/* Keep existing Head, SEO, Scripts */}
         <Head>
           <link rel="icon" href="/images/logo.png" />
-          {/* Add other meta tags if needed */}
+          <title>Vector Agent</title>
+          <meta name="description" content="Upload, Interrogate, and Analyze Private Data with AI" />
         </Head>
         {/* Optional: Add wrapper for layout structure (e.g., sticky footer) */}
         <div className="flex flex-col min-h-screen">

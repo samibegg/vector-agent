@@ -68,7 +68,7 @@ export default function Researcher() {
       let tries = 0, data = null;
       while (tries < maxTries) {
         await new Promise(res => setTimeout(res, pollInterval));
-        setPollStatus(`Waiting for results… ${((tries + 1) * pollInterval / 1000).toFixed(0)} s`); // NEW
+        setPollStatus(`Analysis in progress ${((tries + 1) * pollInterval / 1000).toFixed(0)} s`); // NEW
 
         const poll = await fetch('/api/status-check', {
           method : 'POST',
@@ -85,7 +85,7 @@ export default function Researcher() {
       }
       setPollStatus('');
 
-      if (!data) throw new Error('Timed out waiting for n8n');
+      if (!data) throw new Error('Timed out waiting for analysis workflow');
 
       const finalResults = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : [data]);
       setResults(finalResults);
@@ -198,12 +198,12 @@ export default function Researcher() {
       <main className="flex-grow flex flex-col justify-center items-center px-6 py-16">
 
         <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-6">
-          <h1 className="text-2xl font-bold mb-4">Research Assistant</h1>
+          <h1 className="text-2xl font-bold mb-4">Interrogate the Documents</h1>
 
           <textarea
             className="w-full p-3 border rounded-md resize-none focus:ring-2 focus:ring-blue-500"
             rows="4"
-            placeholder="Enter your research prompt…"
+            placeholder="Enter your prompt…"
             value={prompt}
             onChange={e => setPrompt(e.target.value)}
           />
@@ -213,7 +213,7 @@ export default function Researcher() {
             disabled={loading || !prompt}
             className="mt-4 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading ? 'Processing…' : 'Submit Prompt'}
+            {loading ? 'Interrogating…' : 'Submit Prompt'}
           </button>
 
           {pollStatus && <p className="mt-2 text-gray-500 text-sm">{pollStatus}</p>}   {/* NEW */}

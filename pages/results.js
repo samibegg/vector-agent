@@ -46,10 +46,10 @@ export default function Results({ contacts }) {
 
       <main className="flex-grow flex flex-col justify-center items-center px-6 py-16">
         <div className="mx-auto max-w-4xl">
-          <h1 className="mb-6 text-3xl font-bold">Research Results</h1>
+          <h1 className="mb-6 text-3xl font-bold">Interrogation Analysis</h1>
 
           {contacts.length === 0 && (
-            <p className="text-gray-600">No saved results yet.</p>
+            <p className="text-gray-600">No interrogation results have been saved.</p>
           )}
 
           <ul className="space-y-5">

@@ -28,9 +28,9 @@ export default function Upload() {
       <div className="bg-gray-100 min-h-screen flex flex-col">
         <Header />
         <main className="flex-grow flex flex-col justify-center items-center px-6 py-16">
-          <p className="mb-4">You must log in to upload files to Google Drive.</p>
+          <p className="mb-4">You must log in to upload documents.</p>
           <button onClick={() => signIn('google')} className="px-4 py-2 bg-blue-600 text-white rounded">
-            Login with Google
+            Login Now
           </button>
         </main>
         <Footer />
@@ -114,14 +114,14 @@ export default function Upload() {
     <div className="bg-gray-100 min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow px-6 py-12 max-w-3xl mx-auto">
-        <h1 className="text-2xl font-bold mb-4">Upload to Google Drive</h1>
+        <h1 className="text-2xl font-bold mb-4">Upload Documents</h1>
 
         <div
           onDrop={handleDrop}
           onDragOver={(e) => e.preventDefault()}
           className="border-2 border-dashed border-blue-400 rounded-lg p-6 text-center bg-blue-50 mb-4"
         >
-          <p className="text-sm text-blue-700">Drag & drop files here</p>
+          <p className="text-sm text-blue-700">Drag & drop documents here</p>
           <p className="text-sm text-gray-500 mt-1">or</p>
           <input
             type="file"
@@ -150,9 +150,9 @@ export default function Upload() {
           </div>
         )}
 
-        <h2 className="text-lg font-semibold mt-6 mb-2">Files in Google Drive</h2>
+        <h2 className="text-lg font-semibold mt-6 mb-2">Document Details</h2>
         {listing.length === 0 ? (
-          <p className="text-sm text-gray-500">No files found in Drive.</p>
+          <p className="text-sm text-gray-500">No documents found.</p>
         ) : (
           <ul className="space-y-2 text-sm">
             {listing.map((f) => (

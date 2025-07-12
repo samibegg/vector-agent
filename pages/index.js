@@ -27,10 +27,10 @@ export default function Home() {
       <main className="flex-grow flex flex-col items-center justify-center px-6 py-24">
         {/* Hero */}
         <div className="text-center max-w-3xl">
-          <h1 className="text-5xl font-extrabold tracking-tight leading-tight mb-4">
-            Welcome to <span className="text-blue-700">Vector Agent</span>
+          <h1 className="text-8xl font-extrabold tracking-tight leading-tight mb-4">
+            <span className="text-blue-700">Vector Agent</span>
           </h1>
-          <p className="text-xl md:text-2xl h-10 relative">
+          <p className="text-gray-400 text-xl md:text-4xl h-10 relative">
             <span
               key={phrases[index]}
               className="absolute inset-0 transition-opacity duration-700 ease-in-out opacity-100 animate-fade"
@@ -47,7 +47,7 @@ export default function Home() {
             className="group flex flex-col items-center justify-center bg-white border border-blue-200 hover:border-blue-400 shadow-md hover:shadow-xl transition-all duration-300 rounded-2xl px-8 py-10 text-center text-2xl font-semibold text-blue-700 hover:animate-pulse"
           >
             <div className="text-5xl mb-4">📤</div>
-            Upload Files
+            Upload Documents
           </Link>
 
           <Link
@@ -55,7 +55,7 @@ export default function Home() {
             className="group flex flex-col items-center justify-center bg-white border border-teal-200 hover:border-teal-400 shadow-md hover:shadow-xl transition-all duration-300 rounded-2xl px-8 py-10 text-center text-2xl font-semibold text-teal-700 hover:animate-pulse"
           >
             <div className="text-5xl mb-4">🧠</div>
-            AI Researcher
+            AI Interrogation
           </Link>
 
           <Link
@@ -63,7 +63,7 @@ export default function Home() {
             className="group flex flex-col items-center justify-center bg-white border border-emerald-200 hover:border-emerald-400 shadow-md hover:shadow-xl transition-all duration-300 rounded-2xl px-8 py-10 text-center text-2xl font-semibold text-emerald-700 hover:animate-pulse"
           >
             <div className="text-5xl mb-4">📊</div>
-            Research Results
+            Saved Analysis
           </Link>
         </div>
 
