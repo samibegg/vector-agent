@@ -17,10 +17,67 @@ export default function Upload() {
   const [progress, setProgress] = useState({});
   const [message, setMessage] = useState('');
   const [listing, setListing] = useState([]);
+  const [pineconeCount, setPineconeCount] = useState(null);
+  const [pineconeDim, setPineconeDim] = useState(null);
+  const [pineconeNamespaces, setPineconeNamespaces] = useState({});
+  const [pineconeIndexName, setPineconeIndexName] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (status === 'authenticated') loadFiles();
+    if (status === 'authenticated') {
+      loadFiles();
+      fetchPineconeCount();
+    }
   }, [status]);
+
+  async function clearPineconeIndex() {
+    const confirmed = confirm(
+      'Are you sure you want to delete all vectors from the Pinecone index? This cannot be undone.'
+    );
+    if (!confirmed) return;
+
+    setLoading(true);
+    setMessage('');
+
+    try {
+      const res = await fetch('/api/clear-index', { method: 'POST' });
+      const data = await res.json();
+
+      if (res.ok) {
+        setMessage('✅ All vectors deleted successfully.');
+        // optionally reload data or set pineconeCount to 0
+        // setPineconeCount(0); // if state is lifted
+      } else {
+        setMessage(`❌ Error: ${data.error || 'Unknown error'}`);
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage('❌ Request failed.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function fetchPineconeCount() {
+    try {
+      const res = await fetch('/api/pinecone-count');
+      const data = await res.json();
+      if (res.ok) {
+        setPineconeCount(data.count);
+        setPineconeDim(data.dimension);
+        setPineconeIndexName(data.indexName);
+        const namespaceCounts = {};
+        for (const [key, val] of Object.entries(data.namespaces || {})) {
+          namespaceCounts[key] = val.vectorCount || 0;
+        }
+        setPineconeNamespaces(namespaceCounts);
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (err) {
+      setMessage((prev) => prev + `\n❌ Failed to load Pinecone record count: ${err.message}`);
+    }
+  }
 
   if (status === 'loading') return <p className="p-6">Loading session...</p>;
   if (!session)
@@ -191,6 +248,51 @@ export default function Upload() {
             ))}
           </ul>
         )}
+
+    <div>
+      {pineconeCount !== null && (
+        <>
+          <h2 className="text-lg font-semibold mt-6 mb-2">Index Details</h2>
+          {pineconeIndexName && (
+            <p className="text-sm text-gray-600 mb-2">
+              📦 Index <strong>{pineconeIndexName}</strong> contains{' '}
+              <strong>{pineconeCount}</strong> records
+            </p>
+          )}
+          {pineconeDim && (
+            <p className="text-sm text-gray-600 mb-2">
+              🔢 Vector Dimension: <strong>{pineconeDim}</strong>
+            </p>
+          )}
+          {pineconeNamespaces && Object.keys(pineconeNamespaces).length > 0 && (
+            <div className="mt-2">
+              <p className="text-sm font-medium text-gray-700">Namespaces:</p>
+              <ul className="list-disc list-inside text-sm text-gray-600">
+                {Object.entries(pineconeNamespaces).map(([ns, count]) => (
+                  <li key={ns}>
+                    <span className="font-semibold">
+                      {ns || '(default)'}
+                    </span>: {count} vectors
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {pineconeCount > 0 && (
+            <div className="p-4">
+              <button
+                onClick={clearPineconeIndex}
+                disabled={loading}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+              >
+                {loading ? 'Deleting...' : 'Clear Pinecone Index'}
+              </button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+
       </main>
       <Footer />
     </div>
