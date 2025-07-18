@@ -8,7 +8,10 @@ export default async function handler(req, res) {
   const sessionId = incoming || randomUUID();
 
   const webhookUrl = process.env.N8N_WEBHOOK_URL;
-  const prompt = `Give me all the additional information on just this entity: ${JSON.stringify(doc)}`;
+  //const prompt = `Give me all the additional information on just this entity: ${JSON.stringify(doc)}`;
+  const prompt = `Construct a knowledge graph in the form of JSON list of triples.
+  Each triple represents a relationshop between 2 entities. the first entity is ${JSON.stringify(doc)} and the second entity is any related Named Entity within the entire corpus of information in the document store.
+  The JSON format is as follows: {Entity 1, relationship to/from, Entity 2}`;
 
   try {
     const rsp = await fetch(webhookUrl, {
